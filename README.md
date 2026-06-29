@@ -1,36 +1,59 @@
 # pi-cp2cb
 
-Pi extension for assistant responses that include fenced code blocks.
+Pi extension that auto-copies matching assistant code blocks to your clipboard.
 
 ## What it does
 
-Pi's extension API does not expose a clean click-handler for assistant markdown/code blocks in the TUI.
-So this package ships the lazy version that actually works:
+`cp2cb` watches assistant messages at `message_end` and copies the first matching fenced code block.
 
-- when an assistant `message_end` contains a fenced code block like
-  ```text
-  /var/folders/0g/.../pi-clipboard-....png
-  ```
-  it copies that block to your clipboard automatically
-- `/cp2cb-last` copies the last captured block again
-- `/cp2cb-toggle` turns auto-copy on or off
-- `/cp2cb-status` shows status
+It prefers:
+
+1. a fenced block containing a Pi clipboard temp image path like
+   ```text
+   /var/folders/.../pi-clipboard-123.png
+   ```
+2. otherwise, exactly one single-line fenced code block
+
+It also adds a small status indicator and a few commands.
 
 ## Install
+
+From this repo:
 
 ```bash
 pi install /absolute/path/to/cp2cb
 ```
 
-Or for quick testing:
+Or run it directly while testing:
 
 ```bash
-pi -e ./cp2cb/cp2cb.ts
+pi -e ./cp2cb.ts
 ```
 
-## Notes
+## Commands
 
-- exact click-to-copy on assistant code blocks is not currently exposed by pi extension hooks
-- this extension matches clipboard temp image paths first
-- if there is exactly one single-line fenced code block, it copies that too
-# pi-cp2cb
+- `/cp2cb-toggle` — turn auto-copy on or off
+- `/cp2cb-last` — copy the last captured block again
+- `/cp2cb-status` — show current status
+
+## Config
+
+State is stored at:
+
+```text
+~/.pi/agent/cp2cb-config.json
+```
+
+Default:
+
+```json
+{
+  "enabled": true
+}
+```
+
+## Limits
+
+- Pi does not currently expose a direct click-to-copy hook for assistant markdown/code blocks in the TUI
+- this extension only copies the first matching block from an assistant message
+- multi-line non-image code blocks are ignored unless you change the matcher
